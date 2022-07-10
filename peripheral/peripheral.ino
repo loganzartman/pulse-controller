@@ -1,7 +1,9 @@
 #include <Wire.h>
 
-#define PERIPHERAL_ID 1
+#define PERIPHERAL_ADDRESS_UNUSED 123
 #define WIRE_TIMEOUT_US 3000
+
+int currentAddress = PERIPHERAL_ADDRESS_UNUSED;
 
 struct ControllerOwnedState {
   int on = 0;
@@ -16,12 +18,23 @@ PeripheralOwnedState pstate;
 void setup() {
   // put your setup code here, to run once:
   pinMode(LED_BUILTIN, OUTPUT);
-  Wire.begin(PERIPHERAL_ID);
+
+  Wire.begin(currentAddress);
   Wire.setWireTimeout(WIRE_TIMEOUT_US, true);
   Wire.onReceive(&onReceive);
   Wire.onRequest(&onRequest);
+
   Serial.begin(9600);
-  Serial.println("startup");
+  Serial.println("pulse peripheral");
+  Serial.println("Send command 'a X' to set I2C port to X.");
+}
+
+void setAddress(int newAddress) {
+  Wire.end();
+  currentAddress = newAddress;
+  Wire.begin(currentAddress);
+  Serial.print("Reconnected with address: ");
+  Serial.println(currentAddress);
 }
 
 void onReceive(int nReceived) {
@@ -42,6 +55,32 @@ void onRequest() {
   Wire.write((uint8_t*)&pstate, sizeof(PeripheralOwnedState));
 }
 
+void updateSerial() {
+  if (!Serial.available()) {
+    return;
+  }
+  String command = Serial.readStringUntil(' ');
+  command.trim();
+  if (command.equals("a")) {
+    String newAddressStr = Serial.readString();
+    int newAddress = newAddressStr.toInt();
+    if (newAddressStr.length() == 0) {
+      Serial.print("Current address: ");
+      Serial.println(currentAddress);
+    } else if (newAddress == 0) {
+      Serial.print("Invalid address: ");
+      Serial.println(newAddressStr);
+    } else {
+      setAddress(newAddress);
+    }
+  } else {
+    Serial.print("Invalid command: '");
+    Serial.print(command);
+    Serial.println("'");
+  }
+}
+
 void loop() {
   digitalWrite(LED_BUILTIN, cstate.on);
+  updateSerial();
 }

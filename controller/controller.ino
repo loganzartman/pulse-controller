@@ -2,7 +2,7 @@
 
 #define PERIPHERAL_COUNT 1
 #define WIRE_TIMEOUT_US 3000
-#define PERIPHERAL_ID(index) (index+1)
+#define PERIPHERAL_ADDRESS(index) (index+1)
 
 struct ControllerOwnedState {
   int on = 0;
@@ -26,12 +26,12 @@ void syncState() {
   digitalWrite(LED_BUILTIN, cstates[0].on);
   for (int i = 0; i < PERIPHERAL_COUNT; ++i) {
     // send controller-owned state
-    Wire.beginTransmission(PERIPHERAL_ID(i));
+    Wire.beginTransmission(PERIPHERAL_ADDRESS(i));
     Wire.write((uint8_t*)(&cstates[i]), sizeof(ControllerOwnedState));
     Wire.endTransmission();
     
     // receive peripheral-owned state
-    int nReceived = Wire.requestFrom(PERIPHERAL_ID(i), sizeof(PeripheralOwnedState));
+    int nReceived = Wire.requestFrom(PERIPHERAL_ADDRESS(i), sizeof(PeripheralOwnedState));
     if (nReceived != sizeof(PeripheralOwnedState)) {
       continue;
     }
