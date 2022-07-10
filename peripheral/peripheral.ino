@@ -1,4 +1,7 @@
 #include <Wire.h>
+#include "PIR.h"
+
+#define PIN_PIR 4
 
 #define PERIPHERAL_ADDRESS_UNUSED 123
 #define WIRE_TIMEOUT_US 3000
@@ -15,6 +18,8 @@ struct PeripheralOwnedState {
 ControllerOwnedState cstate;
 PeripheralOwnedState pstate;
 
+PIR pir{PIN_PIR};
+
 void setup() {
   // put your setup code here, to run once:
   pinMode(LED_BUILTIN, OUTPUT);
@@ -27,6 +32,9 @@ void setup() {
   Serial.begin(9600);
   Serial.println("pulse peripheral");
   Serial.println("Send command 'a X' to set I2C port to X.");
+
+  pir.onMotion(&onMotion);
+  pir.onMotionStop(&onMotionStop);
 }
 
 void setAddress(int newAddress) {
@@ -53,6 +61,16 @@ void onReceive(int nReceived) {
 void onRequest() {
   // send peripheral-owned state
   Wire.write((uint8_t*)&pstate, sizeof(PeripheralOwnedState));
+}
+
+void onMotion() {
+  Serial.println("MOTION");
+  pstate.triggered = 1;
+}
+
+void onMotionStop() {
+  Serial.println("STOP");
+  pstate.triggered = 0;
 }
 
 void updateSerial() {
@@ -83,4 +101,5 @@ void updateSerial() {
 void loop() {
   digitalWrite(LED_BUILTIN, cstate.on);
   updateSerial();
+  pir.update();
 }
