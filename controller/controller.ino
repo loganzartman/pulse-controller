@@ -44,10 +44,6 @@ void syncState() {
 }
 
 void loop() {
-  cstates[0].on = 1;
   syncState();
-  delay(500);
-  cstates[0].on = 0;
-  syncState();
-  delay(200);
+  cstates[0].on = pstates[0].triggered;
 }

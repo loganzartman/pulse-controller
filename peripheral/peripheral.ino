@@ -35,7 +35,6 @@ void onReceive(int nReceived) {
     *cstateBytes = Wire.read();
     ++cstateBytes;
   }
-  Serial.println();
 }
 
 void onRequest() {
