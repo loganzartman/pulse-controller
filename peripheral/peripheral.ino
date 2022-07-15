@@ -1,8 +1,6 @@
 #include <Wire.h>
 #include "PIR.h"
 
-#define PIN_PIR 4
-
 #define PERIPHERAL_ADDRESS_UNUSED 123
 #define WIRE_TIMEOUT_US 3000
 

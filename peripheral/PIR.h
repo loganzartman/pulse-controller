@@ -1,3 +1,5 @@
+#define PIN_PIR 4
+
 struct PIR {
   int pin;
   int motion = 0;
