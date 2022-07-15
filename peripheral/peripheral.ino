@@ -1,5 +1,6 @@
 #include <Wire.h>
 #include "PIR.h"
+#include "Stepper.h"
 
 #define PERIPHERAL_ADDRESS_UNUSED 123
 #define WIRE_TIMEOUT_US 3000
@@ -33,6 +34,8 @@ void setup() {
 
   pir.onMotion(&onMotion);
   pir.onMotionStop(&onMotionStop);
+
+  setupSteppers();
 }
 
 void setAddress(int newAddress) {
@@ -64,11 +67,13 @@ void onRequest() {
 void onMotion() {
   Serial.println("MOTION");
   pstate.triggered = 1;
+  raiseSteppers();
 }
 
 void onMotionStop() {
   Serial.println("STOP");
   pstate.triggered = 0;
+  lowerSteppers();
 }
 
 void updateSerial() {
@@ -100,4 +105,5 @@ void loop() {
   digitalWrite(LED_BUILTIN, cstate.on);
   updateSerial();
   pir.update();
+  updateSteppers();
 }
