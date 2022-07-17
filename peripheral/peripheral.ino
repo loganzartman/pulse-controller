@@ -3,10 +3,10 @@
 #include "Stepper.h"
 #include "LED.h"
 
-#define PERIPHERAL_ADDRESS_UNUSED 123
+#define PERIPHERAL_ADDRESS_DEFAULT 1
 #define WIRE_TIMEOUT_US 3000
 
-int currentAddress = PERIPHERAL_ADDRESS_UNUSED;
+int currentAddress = PERIPHERAL_ADDRESS_DEFAULT;
 
 struct ControllerOwnedState {
   int on = 0;
