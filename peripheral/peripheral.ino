@@ -17,6 +17,7 @@ struct PeripheralOwnedState {
 
 ControllerOwnedState cstate;
 PeripheralOwnedState pstate;
+volatile ControllerOwnedState cstateIncoming;
 
 PIR pir{PIN_PIR};
 
@@ -55,7 +56,7 @@ void onReceive(int nReceived) {
   }
 
   // receive controller-owned state
-  uint8_t* cstateBytes = (uint8_t*)(&cstate);
+  uint8_t* cstateBytes = (uint8_t*)(&cstateIncoming);
   for (int i = 0; i < nReceived; ++i) {
     *cstateBytes = Wire.read();
     ++cstateBytes;
@@ -104,7 +105,14 @@ void updateSerial() {
   }
 }
 
+void syncState() {
+  noInterrupts();
+  cstate = *const_cast<ControllerOwnedState*>(&cstateIncoming);
+  interrupts();
+}
+
 void loop() {
+  syncState();
   digitalWrite(LED_BUILTIN, cstate.on);
   updateSerial();
   pir.update();
