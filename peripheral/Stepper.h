@@ -1,10 +1,10 @@
 #include <AccelStepper.h>
 
 // max without skipping @ no load ~600
-#define STEPPER_MAX_SPEED 400.0
-#define STEPPER_ACCELERATION 200.0
+#define STEPPER_MAX_SPEED 600.0
+#define STEPPER_ACCELERATION 300.0
 
-#define STEPPER_TRAVEL_STEPS 700
+#define STEPPER_TRAVEL_STEPS 2000
 
 AccelStepper lstepper(AccelStepper::FULL2WIRE, 5, 6);
 AccelStepper rstepper(AccelStepper::FULL2WIRE, 7, 8);
