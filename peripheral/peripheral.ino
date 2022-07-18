@@ -9,7 +9,8 @@
 int currentAddress = PERIPHERAL_ADDRESS_DEFAULT;
 
 struct ControllerOwnedState {
-  int on = 0;
+  uint32_t clockMs = 0;
+  uint8_t on = 0;
 };
 struct PeripheralOwnedState {
   int8_t triggered = 0;

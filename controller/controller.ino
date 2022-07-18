@@ -5,7 +5,8 @@
 #define PERIPHERAL_ADDRESS(index) (index+1)
 
 struct ControllerOwnedState {
-  int on = 0;
+  uint32_t clockMs = 0;
+  uint8_t on = 0;
 };
 struct PeripheralOwnedState {
   int8_t triggered = 0;
@@ -44,6 +45,11 @@ void syncState() {
 }
 
 void loop() {
+  uint32_t clockMs = millis();
+  for (int i = 0; i < PERIPHERAL_COUNT; ++i) {
+    cstates[i].clockMs = clockMs;
+    cstates[i].on = pstates[i].triggered;
+  }
+  
   syncState();
-  cstates[0].on = pstates[0].triggered;
 }
