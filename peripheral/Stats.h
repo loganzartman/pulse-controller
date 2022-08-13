@@ -2,12 +2,14 @@
 
 namespace Stats {
   const int REPORT_INTV = 100;
-  const int N_KEYS = 1;
+  const int N_KEYS = 3;
   const int KEY_STEPPER = 0;
-  const int KEY_LED = 1;
+  const int KEY_ANIM = 1;
+  const int KEY_LED_UPDATE = 2;
   const String KEY_NAMES[] = {
     "steppers",
-    "led",
+    "animation",
+    "led-update",
   };
   
   unsigned long micros_start[N_KEYS];

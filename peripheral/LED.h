@@ -1,8 +1,9 @@
 #include <FastLED.h>
 #include "pinout.h"
+#include "Stats.h"
 
-#define N_LEDS 12
-#define N_MODULES 6
+#define N_LEDS 69 * 5
+#define N_MODULES 5
 
 CRGB leds[N_LEDS];
 
@@ -118,7 +119,11 @@ void updateLeds() {
   int stage = millis() / 2000 % (N_MODULES + 1);
   unsigned long clock_ms = millis();
 
+  Stats::start(Stats::KEY_ANIM);
   FastLED.clear();
   anim.update(clock_ms, stage);
+  Stats::finish(Stats::KEY_ANIM);
+  Stats::start(Stats::KEY_LED_UPDATE);
   FastLED.show();
+  Stats::finish(Stats::KEY_LED_UPDATE);
 }
