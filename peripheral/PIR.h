@@ -1,4 +1,4 @@
-#define PIN_PIR 4
+#include "pinout.h"
 
 struct PIR {
   int pin;

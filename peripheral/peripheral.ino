@@ -1,4 +1,5 @@
 #include <Wire.h>
+#include "pinout.h"
 #include "PIR.h"
 #include "Stepper.h"
 #include "LED.h"
@@ -23,11 +24,12 @@ volatile ControllerOwnedState cstateIncoming;
 PIR pir{PIN_PIR};
 
 void setup() {
-  // put your setup code here, to run once:
-  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(PIN_LED_BUILTIN, OUTPUT);
 
   Wire.begin(currentAddress);
+#ifdef WIRE_HAS_TIMEOUT
   Wire.setWireTimeout(WIRE_TIMEOUT_US, true);
+#endif
   Wire.onReceive(&onReceive);
   Wire.onRequest(&onRequest);
 
@@ -114,7 +116,6 @@ void syncState() {
 
 void loop() {
   syncState();
-  digitalWrite(LED_BUILTIN, cstate.on);
   updateSerial();
   pir.update();
   updateSteppers();

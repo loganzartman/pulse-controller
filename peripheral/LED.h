@@ -1,8 +1,7 @@
 #include <FastLED.h>
+#include "pinout.h"
 
 #define N_LEDS 12
-#define PIN_LED 9
-
 #define N_MODULES 6
 
 CRGB leds[N_LEDS];
@@ -110,7 +109,7 @@ private:
 Animation anim{0, leds, millis()};
 
 void setupLeds() {
-  FastLED.addLeds<NEOPIXEL, PIN_LED>(leds, N_LEDS)
+  FastLED.addLeds<NEOPIXEL, PIN_NEOPIXEL>(leds, N_LEDS)
     .setCorrection(CRGB(255, 150, 100));
 }
 

@@ -1,4 +1,5 @@
 #include <AccelStepper.h>
+#include "pinout.h"
 
 // max without skipping @ no load ~600
 #define STEPPER_MAX_SPEED 600.0
@@ -6,8 +7,8 @@
 
 #define STEPPER_TRAVEL_STEPS 2000
 
-AccelStepper lstepper(AccelStepper::DRIVER, 5, 6);
-AccelStepper rstepper(AccelStepper::DRIVER, 7, 8);
+AccelStepper lstepper(AccelStepper::DRIVER, PIN_STEPPER1_STEP, PIN_STEPPER1_DIR);
+AccelStepper rstepper(AccelStepper::DRIVER, PIN_STEPPER2_STEP, PIN_STEPPER2_DIR);
 
 void setupSteppers() {
   lstepper.setMaxSpeed(STEPPER_MAX_SPEED);
