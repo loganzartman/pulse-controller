@@ -74,8 +74,9 @@ private:
   void updateTest() {
     static const unsigned long d = 200;
     if (clock_ms / d % N_MODULES == module_index) {
-      fill_solid(leds, N_LEDS, CHSV(module_index * 255 / N_MODULES, 255, 255));
+//      fill_solid(leds, N_LEDS, CHSV(module_index * 255 / N_MODULES, 255, 255));
     }
+    fill_solid(leds, N_LEDS, CHSV(module_index * 255 / N_MODULES + millis() / 2, 255, 255));
   }
 
   void updateWhite() {
@@ -93,7 +94,7 @@ private:
 
     for (int i = 0; i < N_LEDS; ++i) {
       float heat = inoise8(clock_ms / 4, module_index * 67 + clock_ms / 3, i * 67) / 255.0;
-      leds[i] = hot_color(heat, 0.5, 180);
+      leds[i] = hot_color(heat * heat * heat, 1.0, 170);
     }
 
     for (int i = 0; i < N_LEDS; ++i) {
@@ -101,7 +102,7 @@ private:
       float f = constrain(gradient * activation, 0.0, 1.0);
       f *= f;
       f *= (inoise8(clock_ms, module_index * 67, i * 67) / 255.0) * 0.3 + 0.7;
-      CRGB col = hot_color(f, 1.0);
+      CRGB col = hot_color(f * 0.7, 1.0);
       leds[i] += col;
     }
   }
@@ -110,13 +111,13 @@ private:
 Animation anim{0, leds, millis()};
 
 void setupLeds() {
-  FastLED.addLeds<NEOPIXEL, PIN_NEOPIXEL>(leds, N_LEDS)
-    .setCorrection(CRGB(255, 150, 100));
+  FastLED.addLeds<WS2811, PIN_NEOPIXEL, BRG>(leds, N_LEDS)
+    .setCorrection(CRGB(255, 210, 150));
 }
 
 void updateLeds() {
   // interactivity simulation
-  int stage = millis() / 2000 % (N_MODULES + 1);
+  int stage = millis() / 6000 % (N_MODULES + 1);
   unsigned long clock_ms = millis();
 
   Stats::start(Stats::KEY_ANIM);
