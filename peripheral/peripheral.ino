@@ -2,7 +2,6 @@
 #include "pinout.h"
 #include "PIR.h"
 #include "Stepper.h"
-#include "LED.h"
 
 #define PERIPHERAL_ADDRESS_DEFAULT 1
 #define WIRE_TIMEOUT_US 3000
@@ -41,8 +40,6 @@ void setup() {
   pir.onMotionStop(&onMotionStop);
 
   setupSteppers();
-
-  setupLeds();
 }
 
 void setAddress(int newAddress) {
@@ -119,5 +116,4 @@ void loop() {
   updateSerial();
   pir.update();
   updateSteppers();
-  updateLeds();
 }
