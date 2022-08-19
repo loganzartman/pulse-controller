@@ -1,7 +1,9 @@
 #include <Wire.h>
+#include "LED.h"
 
 #define PERIPHERAL_COUNT 1
 #define WIRE_TIMEOUT_US 3000
+#define WIRE_CLOCK 10000
 #define PERIPHERAL_ADDRESS(index) (index+1)
 
 struct ControllerOwnedState {
@@ -16,15 +18,25 @@ ControllerOwnedState cstates[PERIPHERAL_COUNT];
 PeripheralOwnedState pstates[PERIPHERAL_COUNT];
 
 void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(PIN_LED_BUILTIN, OUTPUT);
+  Wire.setClock(WIRE_CLOCK);
   Wire.begin();
+#ifdef WIRE_HAS_TIMEOUT
   Wire.setWireTimeout(WIRE_TIMEOUT_US, true);
+#elif defined(ESP32)
+  // at time of writing, esp32 wire.h only has old setTimeout interface
+  Wire.setTimeout(WIRE_TIMEOUT_US / 1000);
+#endif
   Serial.begin(9600);
   Serial.println("startup");
+
+  pinMode(PIN_NEOPIXEL, OUTPUT);
+
+  setupLeds();
 }
 
 void syncState() {
-  digitalWrite(LED_BUILTIN, cstates[0].on);
+  digitalWrite(PIN_LED_BUILTIN, cstates[0].on);
   for (int i = 0; i < PERIPHERAL_COUNT; ++i) {
     // send controller-owned state
     Wire.beginTransmission(PERIPHERAL_ADDRESS(i));
@@ -50,6 +62,8 @@ void loop() {
     cstates[i].clockMs = clockMs;
     cstates[i].on = pstates[i].triggered;
   }
-  
+
   syncState();
+
+  updateLeds();
 }

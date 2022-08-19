@@ -2,8 +2,8 @@
 #include "pinout.h"
 #include "Stats.h"
 
-#define N_LEDS 69 * 5
 #define N_MODULES 5
+#define N_LEDS 69 * N_MODULES
 
 CRGB leds[N_LEDS];
 
