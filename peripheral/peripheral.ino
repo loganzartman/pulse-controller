@@ -3,10 +3,9 @@
 #include "PIR.h"
 #include "Stepper.h"
 
-#define PERIPHERAL_ADDRESS_DEFAULT 1
+#define PERIPHERAL_ADDRESS 1
 #define WIRE_TIMEOUT_US 3000
-
-int currentAddress = PERIPHERAL_ADDRESS_DEFAULT;
+#define WIRE_CLOCK 10000
 
 struct ControllerOwnedState {
   uint32_t clockMs = 0;
@@ -25,7 +24,8 @@ PIR pir{PIN_PIR};
 void setup() {
   pinMode(PIN_LED_BUILTIN, OUTPUT);
 
-  Wire.begin(currentAddress);
+  Wire.begin(PERIPHERAL_ADDRESS);
+  Wire.setClock(WIRE_CLOCK);
 #ifdef WIRE_HAS_TIMEOUT
   Wire.setWireTimeout(WIRE_TIMEOUT_US, true);
 #endif
@@ -40,14 +40,6 @@ void setup() {
   pir.onMotionStop(&onMotionStop);
 
   setupSteppers();
-}
-
-void setAddress(int newAddress) {
-  Wire.end();
-  currentAddress = newAddress;
-  Wire.begin(currentAddress);
-  Serial.print("Reconnected with address: ");
-  Serial.println(currentAddress);
 }
 
 void onReceive(int nReceived) {
@@ -86,18 +78,8 @@ void updateSerial() {
   }
   String command = Serial.readStringUntil(' ');
   command.trim();
-  if (command.equals("a")) {
-    String newAddressStr = Serial.readString();
-    int newAddress = newAddressStr.toInt();
-    if (newAddressStr.length() == 0) {
-      Serial.print("Current address: ");
-      Serial.println(currentAddress);
-    } else if (newAddress == 0) {
-      Serial.print("Invalid address: ");
-      Serial.println(newAddressStr);
-    } else {
-      setAddress(newAddress);
-    }
+  if (command.equals("i")) {
+    Serial.println("up");
   } else {
     Serial.print("Invalid command: '");
     Serial.print(command);
@@ -115,5 +97,6 @@ void loop() {
   syncState();
   updateSerial();
   pir.update();
+  digitalWrite(PIN_LED_BUILTIN, pstate.triggered);
   updateSteppers();
 }
