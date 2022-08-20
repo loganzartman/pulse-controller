@@ -5,7 +5,7 @@
 
 #define PERIPHERAL_ADDRESS 1
 #define WIRE_TIMEOUT_US 3000
-#define WIRE_CLOCK 10000
+#define WIRE_CLOCK 100000
 
 struct ControllerOwnedState {
   uint32_t clockMs = 0;
