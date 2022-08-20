@@ -3,9 +3,7 @@
 #include "Stats.h"
 
 #define N_MODULES 5
-#define N_LEDS 69 * N_MODULES
-
-CRGB leds[N_LEDS];
+#define N_LEDS_M 69
 
 CRGB hot_color(float heat, float brightness) {
   float heat3 = heat * heat * heat;
@@ -24,12 +22,12 @@ CRGB hot_color(float heat, float brightness, uint8_t hue) {
   return CHSV(hue, 255, i1) + CHSV(hue + 255 / 3, 255, i2) + CHSV(hue + 255 * 2 / 3, 255, i3);
 }
 
-enum AnimationMode {TEST, WHITE, ACTIVE};
+enum AnimationMode {TEST, TEST2, WHITE, ACTIVE};
 
 struct Animation {
+  CRGB leds[N_LEDS_M];
   int module_index;
-  CRGB* const leds;
-  AnimationMode mode = ACTIVE;
+  AnimationMode mode = TEST2;
   
   unsigned long clock_prev_ms = 0;
   unsigned long clock_ms = 0;
@@ -42,9 +40,8 @@ struct Animation {
   float activation_target = 0;
   float activation = 0;
 
-  Animation(int module_index, CRGB* const leds, unsigned long clock_ms) 
+  Animation(int module_index, unsigned long clock_ms) 
     : module_index(module_index),
-      leds(leds), 
       clock_prev_ms(clock_ms),
       clock_ms(clock_ms) {}
 
@@ -61,6 +58,9 @@ struct Animation {
       case TEST:
         updateTest();
         break;
+      case TEST2:
+        updateTest2();
+        break;
       case WHITE:
         updateWhite();
         break;
@@ -74,13 +74,21 @@ private:
   void updateTest() {
     static const unsigned long d = 200;
     if (clock_ms / d % N_MODULES == module_index) {
-//      fill_solid(leds, N_LEDS, CHSV(module_index * 255 / N_MODULES, 255, 255));
+//      fill_solid(leds, N_LEDS_M, CHSV(module_index * 255 / N_MODULES, 255, 255));
     }
-    fill_solid(leds, N_LEDS, CHSV(module_index * 255 / N_MODULES + millis() / 2, 255, 255));
+    fill_solid(leds, N_LEDS_M, CHSV(module_index * 255 / N_MODULES + millis() / 4, 127, 255));
+  }
+
+  void updateTest2() {
+    fill_solid(leds, N_LEDS_M, CRGB(
+      sin8(module_index * 30 + millis() / 100) * 127 / 255, 
+      127, 
+      activation_target > 0.5 ? 255 : 0
+    ));
   }
 
   void updateWhite() {
-    fill_solid(leds, N_LEDS, CRGB(255, 255, 255));
+    fill_solid(leds, N_LEDS_M, CRGB(255, 255, 255));
   }
 
   void updateActive() {
@@ -92,13 +100,13 @@ private:
     }
     activation += (activation_target - activation) * activation_rate * dt_s;
 
-    for (int i = 0; i < N_LEDS; ++i) {
+    for (int i = 0; i < N_LEDS_M; ++i) {
       float heat = inoise8(clock_ms / 4, module_index * 67 + clock_ms / 3, i * 67) / 255.0;
       leds[i] = hot_color(heat * heat * heat, 1.0, 170);
     }
 
-    for (int i = 0; i < N_LEDS; ++i) {
-      float gradient = 1.0 - abs(float(i) / (N_LEDS - 1) - 0.5) * 2.0 + 1.0;
+    for (int i = 0; i < N_LEDS_M; ++i) {
+      float gradient = 1.0 - abs(float(i) / (N_LEDS_M - 1) - 0.5) * 2.0 + 1.0;
       float f = constrain(gradient * activation, 0.0, 1.0);
       f *= f;
       f *= (inoise8(clock_ms, module_index * 67, i * 67) / 255.0) * 0.3 + 0.7;
@@ -108,11 +116,20 @@ private:
   }
 };
 
-Animation anim{0, leds, millis()};
+Animation anim[N_MODULES] = {
+  Animation{0, millis()},
+  Animation{1, millis()},
+  Animation{2, millis()},
+  Animation{3, millis()},
+  Animation{4, millis()},
+};
 
 void setupLeds() {
-  FastLED.addLeds<WS2811, PIN_NEOPIXEL, BRG>(leds, N_LEDS)
-    .setCorrection(CRGB(255, 210, 150));
+  for (int i = 0; i < N_MODULES; ++i) {
+    FastLED
+      .addLeds<WS2811, PIN_NEOPIXEL, BRG>(anim[i].leds, N_LEDS_M)
+      .setCorrection(CRGB(255, 210, 150));    
+  }
 }
 
 void updateLeds() {
@@ -122,7 +139,9 @@ void updateLeds() {
 
   Stats::start(Stats::KEY_ANIM);
   FastLED.clear();
-  anim.update(clock_ms, stage);
+  for (int i = 0; i < N_MODULES; ++i) {
+    anim[i].update(clock_ms, stage);
+  }
   Stats::finish(Stats::KEY_ANIM);
   Stats::start(Stats::KEY_LED_UPDATE);
   FastLED.show();
