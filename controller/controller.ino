@@ -29,7 +29,9 @@ void setup() {
 #endif
   Serial.begin(9600);
   Serial.println("startup");
+#if defined(ESP32)
   Serial.setDebugOutput(true);
+#endif
 
   pinMode(PIN_NEOPIXEL, OUTPUT);
 
