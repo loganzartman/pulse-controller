@@ -1,9 +1,9 @@
 #include <Wire.h>
 #include "LED.h"
 
-#define PERIPHERAL_COUNT 1
+#define PERIPHERAL_COUNT 2
 #define WIRE_TIMEOUT_US 3000
-#define WIRE_CLOCK 10000
+#define WIRE_CLOCK 100000
 #define PERIPHERAL_ADDRESS(index) (index+1)
 
 struct ControllerOwnedState {
@@ -29,6 +29,7 @@ void setup() {
 #endif
   Serial.begin(9600);
   Serial.println("startup");
+  Serial.setDebugOutput(true);
 
   pinMode(PIN_NEOPIXEL, OUTPUT);
 

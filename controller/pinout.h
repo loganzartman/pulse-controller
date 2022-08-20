@@ -9,7 +9,7 @@
   #define PIN_LED_BUILTIN 2
   #define PIN_SDA 22
   #define PIN_SCL 21
-  #define PIN_NEOPIXEL 13
+  #define PIN_NEOPIXEL 27
 #else
   #error Unknown platform
 #endif
